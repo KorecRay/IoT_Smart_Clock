@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Worker HMAC 認證測試</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        label {
+            display: block;
+            margin: 1rem 0 0.25rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.6rem;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            font-family: monospace;
+        }
+
+        button {
+            margin-top: 1.25rem;
+            width: 100%;
+            padding: 0.75rem;
+            background: #f38020;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #e57318;
+        }
+
+        pre {
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-top: 1.25rem;
+            overflow-x: auto;
+            color: #39d353;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h2>Cloudflare Worker HMAC test</h2>
+        <label for="url">Worker URL</label>
+        <input id="url" type="text" value="http://127.0.0.1:8787" />
+
+        <label for="key">AUTH_SECRET_KEY</label>
+        <input id="key" type="text" value="sdwt2-asdj2-23jfs-213js-hluk7-slkgj" />
+
+        <button id="sendBtn">Send authenticated request</button>
+
+        <label>Response content</label>
+        <pre id="output">// Click to test</pre>
+    </div>
+
+    <script type="module">
+        import { sendAuthenticatedRequest } from './api_test.js';
+
+        const urlInput = document.getElementById('url');
+        const keyInput = document.getElementById('key');
+        const btn = document.getElementById('sendBtn');
+        const output = document.getElementById('output');
+
+        btn.addEventListener('click', async () => {
+            output.textContent = 'Sending...';
+            try {
+                const res = await sendAuthenticatedRequest(urlInput.value.trim(), keyInput.value.trim());
+                const data = await res.json();
+                output.textContent = JSON.stringify({ status: res.status, ok: res.ok, body: data }, null, 2);
+            } catch (err) {
+                output.textContent = 'Error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+
+</html>
